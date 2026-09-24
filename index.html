@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aurora — Free Music</title>
+<style>
+:root{--bg:#0b0b14;--fg:#f3f1ff;--mut:#a9a6c4;--card:rgba(255,255,255,.07);--bd:rgba(255,255,255,.12);--c1:#7c5cff;--c2:#ff5c9d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f1ff;--fg:#1a1633;--mut:#5d5880;--card:rgba(255,255,255,.6);--bd:rgba(0,0,0,.1)}}
+:root[data-theme="light"]{--bg:#f4f1ff;--fg:#1a1633;--mut:#5d5880;--card:rgba(255,255,255,.6);--bd:rgba(0,0,0,.1)}
+:root[data-theme="dark"]{--bg:#0b0b14;--fg:#f3f1ff}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:'Poppins',system-ui,-apple-system,Segoe UI,sans-serif;min-height:100%;transition:background .4s}
+.bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--bg)}
+.blob{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(90px);opacity:.55;transition:background 1.5s;animation:fl 22s ease-in-out infinite alternate}
+.b1{background:var(--c1);top:-20vmax;left:-15vmax}
+.b2{background:var(--c2);bottom:-25vmax;right:-15vmax;animation-delay:-8s}
+.b3{background:var(--c1);top:30%;left:40%;width:35vmax;height:35vmax;opacity:.3;animation-delay:-14s}
+@keyframes fl{to{transform:translate(9vmax,6vmax) scale(1.2)}}
+.wrap{max-width:900px;margin:0 auto;padding:24px 16px 170px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1{font-size:1.6rem;margin:0;letter-spacing:.5px;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mut);font-size:.85rem;margin:4px 0 0}
+.tg{background:var(--card);border:1px solid var(--bd);color:var(--fg);border-radius:999px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(12px)}
+.search{position:relative;margin:22px 0 12px}
+.search input{width:100%;padding:15px 18px 15px 46px;border-radius:16px;border:1px solid var(--bd);background:var(--card);color:var(--fg);font-size:1rem;backdrop-filter:blur(14px);outline:none}
+.search input:focus{border-color:var(--c1);box-shadow:0 0 0 3px color-mix(in srgb,var(--c1) 30%,transparent)}
+.search span{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.1rem}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 14px}
+.chip{flex:none;padding:7px 14px;border-radius:999px;border:1px solid var(--bd);background:var(--card);color:var(--fg);cursor:pointer;font-size:.85rem}
+.chip.on{background:linear-gradient(90deg,var(--c1),var(--c2));color:#fff;border-color:transparent}
+.list{display:grid;gap:10px}
+.row{display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:16px;background:var(--card);border:1px solid var(--bd);backdrop-filter:blur(14px);cursor:pointer;transition:transform .15s}
+.row:hover{transform:translateX(4px)}
+.row.cur{border-color:var(--c1)}
+.art{width:52px;height:52px;border-radius:12px;flex:none;display:grid;place-items:center;font-size:1.3rem;color:#fff}
+.info{flex:1;min-width:0}
+.info b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.info small{color:var(--mut)}
+.tag{font-size:.75rem;color:var(--mut)}
+.empty{text-align:center;color:var(--mut);padding:40px 0}
+.player{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));background:var(--card);backdrop-filter:blur(24px);border-top:1px solid var(--bd)}
+.pin{max-width:900px;margin:0 auto}
+canvas{width:100%;height:36px;display:block;margin-bottom:6px}
+.now{display:flex;align-items:center;gap:12px}
+.ctl{display:flex;align-items:center;gap:8px}
+.ctl button{background:none;border:0;color:var(--fg);font-size:1.3rem;cursor:pointer;padding:6px}
+.ctl .pp{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;font-size:1.2rem}
+.bar{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--mut);margin-top:6px}
+input[type=range]{flex:1;accent-color:var(--c1)}
+.vol{width:80px;flex:none}
+@media(max-width:520px){.vol{display:none}}
+.hd{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+label.tg{display:inline-block}
+.dl{flex:none;background:none;border:1px solid var(--bd);color:var(--fg);border-radius:10px;padding:6px 10px;cursor:pointer}
+#dlb{display:none}
+.toast{position:fixed;left:50%;bottom:170px;transform:translateX(-50%);background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--bd);padding:10px 16px;border-radius:12px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9;font-size:.9rem}
+body.drag::after{content:"Drop audio files to upload";position:fixed;inset:12px;border:2px dashed var(--c1);border-radius:20px;display:grid;place-items:center;font-size:1.3rem;z-index:20;pointer-events:none;background:rgba(0,0,0,.35);color:#fff}
+</style>
+</head>
+<body>
+<div class="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="wrap">
+<header>
+ <div><h1>✦ Aurora</h1><p class="sub">Free music for Reels, TikTok &amp; Shorts. Original tracks made live in your browser. Upload your own and download any track.</p></div>
+ <div class="hd"><label class="tg" for="file">⬆ Upload music</label><input id="file" type="file" accept="audio/*" multiple hidden><button class="tg" id="theme">◐ Theme</button></div>
+</header>
+<div class="search"><span>🔍</span><input id="q" type="search" placeholder="Search songs, artists, moods or “dance”, “gym”, “vlog”…" autocomplete="off"></div>
+<div class="chips" id="chips"></div>
+<div class="chips" id="clip"><span class="tag" style="align-self:center;flex:none">Clip length:</span></div>
+<div class="list" id="list"></div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="player"><div class="pin">
+ <canvas id="viz" height="36"></canvas>
+ <div class="now">
+  <div class="art" id="pa" style="background:linear-gradient(135deg,var(--c1),var(--c2))">♪</div>
+  <div class="info"><b id="pt">Pick a song</b><small id="ps">Aurora</small></div>
+  <div class="ctl"><button id="prev">⏮</button><button class="pp" id="pp">▶</button><button id="next">⏭</button><button id="dlb" title="Download">⬇</button></div>
+  <input class="vol" id="vol" type="range" min="0" max="1" step="0.01" value="0.7" aria-label="Volume">
+ </div>
+ <div class="bar"><span id="cu">0:00</span><input id="seek" type="range" min="0" max="100" value="0" step="0.1" disabled><span id="du">3:00</span></div>
+</div></div>
+<script>
+const TR=[
+{t:"Midnight Rain",a:"Luna Vale",m:"Lo-fi",bpm:76,r:57,c:["#5b6cff","#a45cff"],p:[[0,3,7,10],[5,8,12,15],[3,7,10,14],[7,10,14,17]],d:1},
+{t:"Golden Hour",a:"Sunday Static",m:"Chill",bpm:84,r:60,c:["#ff9a3c","#ff5c7a"],p:[[0,4,7,11],[5,9,12,16],[7,11,14,17],[4,7,11,14]],d:1},
+{t:"Neon Drive",a:"Kai Ora",m:"Synthwave",bpm:110,r:52,c:["#ff2fa0","#2fd9ff"],p:[[0,3,7],[8,12,15],[5,8,12],[10,14,17]],d:1},
+{t:"Deep Ocean",a:"Nerida",m:"Ambient",bpm:60,r:48,c:["#0aa3c2","#1f3fbf"],p:[[0,7,12,16],[5,12,16,19],[3,10,14,19],[7,14,17,21]],d:0},
+{t:"Paper Lanterns",a:"Hoshi",m:"Chill",bpm:72,r:62,c:["#ffb454","#e0457b"],p:[[0,4,7,9],[5,9,12,14],[7,11,14,17],[0,4,7,11]],d:0},
+{t:"Velvet Sky",a:"Luna Vale",m:"Ambient",bpm:64,r:55,c:["#8b5cff","#3fd0c9"],p:[[0,3,7,10],[8,12,15,19],[3,7,10,14],[10,14,17,21]],d:0},
+{t:"Coffee & Vinyl",a:"Mellow Fox",m:"Lo-fi",bpm:80,r:58,c:["#c98b5a","#6b4a8f"],p:[[0,4,7,10],[5,9,12,15],[2,5,9,12],[7,11,14,17]],d:1},
+{t:"Starlight Run",a:"Kai Ora",m:"Synthwave",bpm:118,r:50,c:["#6a4cff","#ff4f8b"],p:[[0,3,7],[3,7,10],[8,12,15],[7,10,14]],d:1},
+{t:"Monsoon Evenings",a:"Rehan & Co",m:"Chill",bpm:70,r:59,c:["#2bb673","#2f7fd8"],p:[[0,3,7,10],[3,7,10,14],[5,8,12,15],[7,10,14,17]],d:1},
+{t:"Dreamweaver",a:"Nerida",m:"Ambient",bpm:58,r:53,c:["#ff7bd5","#7b8cff"],p:[[0,7,11,14],[5,12,16,19],[7,14,17,21],[4,11,14,19]],d:0},
+{t:"Rooftop Sunrise",a:"Sunday Static",m:"Lo-fi",bpm:88,r:64,c:["#ffd166","#ef476f"],p:[[0,4,7,11],[7,11,14,17],[9,12,16,19],[5,9,12,16]],d:1},
+{t:"Afterglow",a:"Hoshi",m:"Synthwave",bpm:104,r:56,c:["#ff6a3d","#b03cff"],p:[[0,3,7,10],[8,12,15,19],[5,8,12,15],[10,14,17,20]],d:1},
+{t:"Main Character",a:"Kai Ora",m:"Viral",bpm:128,r:57,c:["#ff3d81","#ffb03d"],p:[[0,3,7],[8,12,15],[5,8,12],[10,14,17]],d:1,st:"dance",u:"Dance trends"},
+{t:"Glow Up",a:"Sunday Static",m:"Hype",bpm:124,r:60,c:["#ffd23d","#ff3d6e"],p:[[0,4,7],[7,11,14],[9,12,16],[5,9,12]],d:1,st:"dance",u:"Transitions & glow-ups"},
+{t:"Trap Season",a:"Rehan & Co",m:"Trap",bpm:140,r:53,c:["#ff2b2b","#5b1bff"],p:[[0,3,7],[0,3,7],[8,12,15],[7,10,14]],d:1,st:"trap",u:"Gym & sports edits"},
+{t:"Night Drift",a:"Kai Ora",m:"Phonk",bpm:132,r:50,c:["#7a00ff","#00e0ff"],p:[[0,3,7],[10,14,17],[8,12,15],[7,10,14]],d:1,st:"trap",u:"Car & attitude edits"},
+{t:"Wobble Walk",a:"Mellow Fox",m:"Funny",bpm:112,r:62,c:["#3dff9a","#ffe23d"],p:[[0,4,7],[5,9,12],[7,11,14],[0,4,7]],d:1,st:"funny",u:"Comedy & memes"},
+{t:"Epic Reveal",a:"Nerida",m:"Cinematic",bpm:90,r:48,c:["#ffb347","#1b2a6b"],p:[[0,3,7,12],[8,12,15,19],[5,8,12,17],[10,14,17,22]],d:1,st:"cine",u:"Travel & reveals"},
+{t:"Soft Diaries",a:"Hoshi",m:"Vlog",bpm:82,r:63,c:["#ffb6c9","#c9a7ff"],p:[[0,4,7,11],[5,9,12,16],[2,5,9,12],[7,11,14,17]],d:1,u:"GRWM & aesthetic vlogs"},
+{t:"Weekend Mode",a:"Sunday Static",m:"Vlog",bpm:100,r:58,c:["#3dd6ff","#ffd93d"],p:[[0,4,7,9],[5,9,12,14],[7,11,14,17],[0,4,7,11]],d:1,st:"pop",u:"Travel & day-in-my-life"},
+{t:"Slow Motion Love",a:"Luna Vale",m:"Emotional",bpm:68,r:55,c:["#ff6f91","#4b3f8f"],p:[[0,3,7,10],[8,12,15,19],[5,8,12,15],[3,7,10,14]],d:0,u:"Storytime & couples"}
+];
+const $=s=>document.getElementById(s);
+let mood="Reels",ctx,master,an,cur=-1,playing=false,timer,nextT,step=0,t0=0,acc=0,view=TR.map((_,i)=>i),noise;
+let LEN=180;
+const fmt=s=>Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+const hz=m=>440*Math.pow(2,(m-69)/12);
+
+function graph(c,out,vol){
+ const m=c.createGain();m.gain.value=vol;
+ const dl=c.createDelay();dl.delayTime.value=.33;const fb=c.createGain();fb.gain.value=.35;
+ const lp=c.createBiquadFilter();lp.type="lowpass";lp.frequency.value=2400;
+ dl.connect(fb);fb.connect(dl);dl.connect(lp);lp.connect(m);
+ m.connect(out);c.wet=dl;c.dry=m;return m;
+}
+function mkNoise(c){const b=c.createBuffer(1,c.sampleRate,c.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b}
+function init(){
+ if(ctx)return;
+ ctx=new (window.AudioContext||window.webkitAudioContext)();
+ an=ctx.createAnalyser();an.fftSize=64;an.connect(ctx.destination);
+ master=graph(ctx,an,+$("vol").value);noise=mkNoise(ctx);draw();
+}
+function tone(f,t,dur,type,g,wet){
+ const o=ctx.createOscillator(),v=ctx.createGain();
+ o.type=type;o.frequency.value=f;
+ v.gain.setValueAtTime(0,t);v.gain.linearRampToValueAtTime(g,t+.02);v.gain.exponentialRampToValueAtTime(.0005,t+dur);
+ o.connect(v);v.connect(ctx.dry);if(wet)v.connect(ctx.wet);
+ o.start(t);o.stop(t+dur+.05);
+}
+function kick(t){
+ const o=ctx.createOscillator(),v=ctx.createGain();
+ o.frequency.setValueAtTime(140,t);o.frequency.exponentialRampToValueAtTime(40,t+.15);
+ v.gain.setValueAtTime(.5,t);v.gain.exponentialRampToValueAtTime(.001,t+.25);
+ o.connect(v);v.connect(ctx.dry);o.start(t);o.stop(t+.3);
+}
+function hat(t,g){
+ const s=ctx.createBufferSource();s.buffer=noise;
+ const f=ctx.createBiquadFilter();f.type="highpass";f.frequency.value=7000;
+ const v=ctx.createGain();v.gain.setValueAtTime(g,t);v.gain.exponentialRampToValueAtTime(.001,t+.05);
+ s.connect(f);f.connect(v);v.connect(ctx.dry);s.start(t);s.stop(t+.08);
+}
+function snare(t,g){const s=ctx.createBufferSource();s.buffer=noise;const f=ctx.createBiquadFilter();f.type="bandpass";f.frequency.value=1800;const v=ctx.createGain();v.gain.setValueAtTime(g,t);v.gain.exponentialRampToValueAtTime(.001,t+.15);s.connect(f);f.connect(v);v.connect(ctx.dry);s.start(t);s.stop(t+.2)}
+function drums(T,s,t,sd){
+ const st=T.st;
+ if(st==="trap"){if(s===0||s===3||s===6)kick(t);if(s===4)snare(t,.4);hat(t,.05);if(s>=6)hat(t+sd/2,.04)}
+ else if(st==="dance"||st==="pop"){if(s%2===0)kick(t);if(s===2||s===6)snare(t,.3);if(s%2===1)hat(t,.07)}
+ else if(st==="funny"){if(s===0||s===4)kick(t);if(s===2||s===6)snare(t,.15)}
+ else if(st==="cine"){if(s===0)kick(t)}
+ else if(T.d){if(s===0||s===4)kick(t);if(s%2===1)hat(t,.06)}
+}
+function arpn(T,a,s,t,sd){
+ if(T.st==="funny"){if(s%2===0||s===3)tone(hz(T.r+a),t,sd*.6,"square",.05,false)}
+ else if(T.st==="dance"||T.st==="trap"){tone(hz(T.r+a+12),t,sd*1.1,"sawtooth",.035,true)}
+ else if(T.d||s%2===0)tone(hz(T.r+a+12),t,sd*1.6,"sine",.09,true)
+}
+function bass(T,ch,s,t,sd){
+ const f=hz(T.r+ch[0]-12);
+ if(T.st==="trap"){if(s===0||s===3||s===6)tone(f/2,t,sd*2,"sine",.35)}
+ else if(T.st==="dance"||T.st==="funny"||T.st==="pop"){if(s%2===0)tone(f,t,sd*1.2,"sine",.2)}
+ else if(s===0)tone(f,t,sd*4,"sine",.2)
+}
+function stepAt(T,n,t,sd){
+ const bar=Math.floor(n/8)%T.p.length,s=n%8,ch=T.p[bar];
+ if(s===0)ch.forEach(x=>tone(hz(T.r+x),t,sd*8,"triangle",.07,true));
+ const arp=ch[[0,1,2,1,3,2,1,2][s]%ch.length]+12;
+ arpn(T,arp,s,t,sd);bass(T,ch,s,t,sd);drums(T,s,t,sd);
+}
+function sched(){const T=TR[cur],sd=60/T.bpm/2;while(nextT<ctx.currentTime+.25){stepAt(T,step,nextT,sd);nextT+=sd;step++}}
+async function renderWav(i,secs){
+ const sr=44100,oc=new OfflineAudioContext(1,sr*secs,sr),T=TR[i],sd=60/T.bpm/2,sc=ctx,sn=noise;
+ const m=graph(oc,oc.destination,.9);
+ m.gain.setValueAtTime(.9,Math.max(0,secs-.5));m.gain.linearRampToValueAtTime(0,secs);
+ ctx=oc;noise=mkNoise(oc);
+ try{for(let n=0,t=0;t<secs;n++,t=n*sd)stepAt(T,n,t,sd)}finally{ctx=sc;noise=sn}
+ return oc.startRendering();
+}
+function wav(buf){
+ const n=buf.length,ch=buf.numberOfChannels,o=new DataView(new ArrayBuffer(44+n*ch*2));
+ const w=(p,t)=>[...t].forEach((c,i)=>o.setUint8(p+i,c.charCodeAt(0)));
+ w(0,"RIFF");o.setUint32(4,36+n*ch*2,true);w(8,"WAVEfmt ");o.setUint32(16,16,true);o.setUint16(20,1,true);o.setUint16(22,ch,true);o.setUint32(24,buf.sampleRate,true);o.setUint32(28,buf.sampleRate*ch*2,true);o.setUint16(32,ch*2,true);o.setUint16(34,16,true);w(36,"data");o.setUint32(40,n*ch*2,true);
+ const d=[];for(let c=0;c<ch;c++)d.push(buf.getChannelData(c));
+ let p=44;for(let i=0;i<n;i++)for(let c=0;c<ch;c++){const v=Math.max(-1,Math.min(1,d[c][i]));o.setInt16(p,v<0?v*32768:v*32767,true);p+=2}
+ return new Uint8Array(o.buffer);
+}
+function crc(u){
+ if(!crc.t){crc.t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;crc.t.push(c>>>0)}}
+ let r=-1;for(let i=0;i<u.length;i++)r=crc.t[(r^u[i])&255]^(r>>>8);return(r^-1)>>>0;
+}
+function zip(name,data){
+ const nm=new TextEncoder().encode(name),c=crc(data),n=data.length;
+ const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint32(14,c,true);h.setUint32(18,n,true);h.setUint32(22,n,true);h.setUint16(26,nm.length,true);
+ const cd=new DataView(new ArrayBuffer(46));cd.setUint32(0,0x02014b50,true);cd.setUint16(4,20,true);cd.setUint16(6,20,true);cd.setUint32(16,c,true);cd.setUint32(20,n,true);cd.setUint32(24,n,true);cd.setUint16(28,nm.length,true);
+ const eo=new DataView(new ArrayBuffer(22));eo.setUint32(0,0x06054b50,true);eo.setUint16(8,1,true);eo.setUint16(10,1,true);eo.setUint32(12,46+nm.length,true);eo.setUint32(16,30+nm.length+n,true);
+ return new Blob([h,nm,data,cd,nm,eo],{type:"application/zip"});
+}
+function msg(t,ms){const e=$("toast");e.textContent=t;e.style.opacity=1;clearTimeout(msg.h);if(ms)msg.h=setTimeout(()=>e.style.opacity=0,ms)}
+let DL=null;
+async function dl(i){
+ if(!DL)return;
+ const T=TR[i];msg("Preparing “"+T.t+"”…");
+ try{
+  let name,data;
+  if(T.blob){name=T.file;data=new Uint8Array(await T.blob.arrayBuffer())}
+  else{const secs=Math.min(LEN,180);name=T.t+" - "+T.a+" ("+secs+"s).wav";data=wav(await renderWav(i,secs))}
+  name=name.replace(/[\\/:*?"<>|]/g,"");
+  if(window.claude){await DL.save({filename:name+".zip",data:zip(name,data)});msg("Saved! Unzip it to get your audio file.",3500)}
+  else{await DL.save({filename:name,data:new Blob([data])});msg("Download started!",3000)}
+ }catch(e){msg(e&&e.code==="declined"?"Download cancelled.":"Download failed. Please try again.",3500)}
+}
+function addFiles(fs){
+ let n=0;
+ [...fs].filter(f=>f.type.startsWith("audio/")||/\.(mp3|wav|ogg|m4a|aac|flac|webm|opus)$/i.test(f.name)).forEach(f=>{
+  const el=new Audio();el.src=URL.createObjectURL(f);el.preload="metadata";
+  const h=Math.floor(Math.random()*360);
+  TR.push({t:f.name.replace(/\.[^.]+$/,""),a:"Your upload",m:"Uploads",bpm:0,c:["hsl("+h+" 80% 60%)","hsl("+(h+60)%360+" 80% 55%)"],blob:f,file:f.name,el});n++;
+ });
+ if(!n){msg("Please choose audio files (mp3, wav, m4a, ogg…).",3000);return}
+ mood="Uploads";chips();filter();msg(n+" track"+(n>1?"s":"")+" added. Press play!",2500);
+}
+function stopAll(){clearInterval(timer);TR.forEach(T=>T.el&&T.el.pause())}
+function play(i){
+ init();ctx.resume();
+ const T=TR[i];
+ if(i!==cur){stopAll();cur=i;step=0;acc=0;setTheme()}
+ clearInterval(timer);
+ if(T.el){
+  if(!T.src){T.src=ctx.createMediaElementSource(T.el);T.src.connect(master)}
+  T.el.onended=()=>go(1);T.el.play();timer=setInterval(tick,200);
+ }else{
+  nextT=ctx.currentTime+.05;t0=ctx.currentTime-acc;
+  timer=setInterval(()=>{sched();tick()},40);
+ }
+ playing=true;ui();
+}
+function pause(){
+ const T=TR[cur];clearInterval(timer);
+ if(T.el)T.el.pause();else acc=ctx.currentTime-t0;
+ playing=false;ui();
+}
+function tick(){
+ const T=TR[cur];
+ if(T.el){const d=T.el.duration||0;$("cu").textContent=fmt(T.el.currentTime);$("du").textContent=fmt(d);$("seek").value=d?T.el.currentTime/d*100:0;return}
+ const e=ctx.currentTime-t0;
+ $("cu").textContent=fmt(e);$("seek").value=e/LEN*100;
+ if(e>=LEN)go(1);
+}
+function go(d){stopAll();acc=0;step=0;const p=view.length?view:TR.map((_,i)=>i);let k=p.indexOf(cur);k=(k+d+p.length)%p.length;cur=-1;playing=false;play(p[k])}
+function setTheme(){
+ const T=TR[cur],r=document.documentElement.style;
+ r.setProperty("--c1",T.c[0]);r.setProperty("--c2",T.c[1]);
+ $("pt").textContent=T.t;$("ps").textContent=T.a+" · "+T.m;
+ $("seek").disabled=!T.el;$("seek").value=0;$("cu").textContent="0:00";$("du").textContent=fmt(LEN);
+}
+function ui(){$("pp").textContent=playing?"⏸":"▶";render()}
+function render(){
+ const L=$("list");
+ if(!view.length){L.innerHTML='<div class="empty">No songs found. Try "chill" or "lo-fi".</div>';return}
+ L.innerHTML=view.map(i=>{const T=TR[i];return `<div class="row ${i===cur?"cur":""}" data-i="${i}"><div class="art" style="background:linear-gradient(135deg,${T.c[0]},${T.c[1]})">${i===cur&&playing?"♫":"♪"}</div><div class="info"><b>${T.t}</b><small>${T.a}${T.u?" · "+T.u:""}</small></div><span class="tag">${T.bpm?T.m+" · "+T.bpm+" BPM":T.m}</span>${DL?`<button class="dl" data-d="${i}" title="Download">⬇</button>`:""}</div>`}).join("");
+}
+function filter(){
+ const q=$("q").value.trim().toLowerCase();
+ view=TR.map((_,i)=>i).filter(i=>{const T=TR[i];return(mood==="All"||(mood==="Reels"?!!T.u:T.m===mood))&&(!q||(T.t+" "+T.a+" "+T.m+" "+(T.u||"")).toLowerCase().includes(q))});
+ render();
+}
+function clips(){
+ $("clip").innerHTML='<span class="tag" style="align-self:center;flex:none">Clip length:</span>'+[[15,"15s"],[30,"30s"],[60,"60s"],[180,"Full"]].map(([n,l])=>`<button class="chip ${n===LEN?"on":""}" data-n="${n}">${l}</button>`).join("");
+ $("du").textContent=fmt(LEN);
+}
+function chips(){
+ $("chips").innerHTML=["Reels","All",...new Set(TR.map(t=>t.m))].map(m=>`<button class="chip ${m===mood?"on":""}" data-m="${m}">${m==="Reels"?"🔥 Reels & TikTok":m}</button>`).join("");
+}
+function draw(){
+ const c=$("viz"),g=c.getContext("2d"),w=c.width=c.clientWidth*devicePixelRatio,h=c.height=36*devicePixelRatio,d=new Uint8Array(an.frequencyBinCount);
+ (function f(){requestAnimationFrame(f);an.getByteFrequencyData(d);g.clearRect(0,0,w,h);
+  const n=d.length,bw=w/n,gr=g.createLinearGradient(0,0,w,0);
+  gr.addColorStop(0,getComputedStyle(document.documentElement).getPropertyValue("--c1"));
+  gr.addColorStop(1,getComputedStyle(document.documentElement).getPropertyValue("--c2"));
+  g.fillStyle=gr;
+  for(let i=0;i<n;i++){const bh=d[i]/255*h;g.fillRect(i*bw+2,h-bh,bw-4,bh)}
+ })();
+}
+$("list").onclick=e=>{const d=e.target.closest(".dl");if(d){dl(+d.dataset.d);return}const r=e.target.closest(".row");if(!r)return;const i=+r.dataset.i;i===cur&&playing?pause():(i===cur?play(i):(acc=0,play(i)))};
+$("chips").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;mood=b.dataset.m;chips();filter()};
+$("q").oninput=filter;
+$("clip").onclick=e=>{const b=e.target.closest(".chip");if(!b)return;LEN=+b.dataset.n;clips();if(ctx&&cur>=0&&!TR[cur].el&&ctx.currentTime-t0>=LEN){acc=0;t0=ctx.currentTime}};
+$("pp").onclick=()=>{if(cur<0){play(view[0]??0)}else playing?pause():play(cur)};
+$("next").onclick=()=>cur<0?play(view[0]??0):go(1);
+$("prev").onclick=()=>cur<0?play(view[0]??0):go(-1);
+$("vol").oninput=e=>{if(master)master.gain.value=+e.target.value};
+$("theme").onclick=()=>{const r=document.documentElement,l=matchMedia("(prefers-color-scheme:light)").matches;const now=r.dataset.theme||(l?"light":"dark");r.dataset.theme=now==="dark"?"light":"dark"};
+$("file").onchange=e=>{addFiles(e.target.files);e.target.value=""};
+$("seek").oninput=()=>{const T=TR[cur];if(T&&T.el&&T.el.duration)T.el.currentTime=$("seek").value/100*T.el.duration};
+$("dlb").onclick=()=>cur>=0?dl(cur):msg("Play or pick a song first.",2000);
+addEventListener("dragover",e=>{e.preventDefault();document.body.classList.add("drag")});
+addEventListener("dragleave",e=>{if(!e.relatedTarget)document.body.classList.remove("drag")});
+addEventListener("drop",e=>{e.preventDefault();document.body.classList.remove("drag");addFiles(e.dataTransfer.files)});
+if(window.claude)window.claude.use("downloads").then(x=>{DL=x;if(x)$("dlb").style.display="inline-block";render()}).catch(()=>{});
+else{DL={save:async({filename,data})=>{const a=document.createElement("a");a.href=URL.createObjectURL(data);a.download=filename;document.body.appendChild(a);a.click();a.remove()}};$("dlb").style.display="inline-block"}
+chips();clips();filter();
+</script>
+</body>
+</html>
