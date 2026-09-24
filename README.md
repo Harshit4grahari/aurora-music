@@ -53,6 +53,40 @@ Aurora is structured entirely around native client-side web primitives without r
 - **In-Memory Binary Serialization**: Converts raw PCM channel float data directly into an 8-bit/16-bit RIFF/WAVE file format via JavaScript `DataView` and `ArrayBuffer`[cite: 1].
 - **PKZIP Packaging**: Assembles valid standard ZIP archives entirely in-memory using manual ZIP Local Header and Central Directory structures calculated with an internal CRC32 table[cite: 1].
 
+
+┌─────────────────────────────────────────────────────────────┐
+│                       Presentation Layer                    │
+│   DOM Controls  │  CSS Glassmorphism UI  │  HTML5 Canvas     │
+└──────────────┬──────────────────────────────────┬───────────┘
+│                                  │
+▼                                  ▲
+┌────────────────────────────────────────┐        │
+│          State & Step Sequencer        │        │
+│  - Track Metadata (BPM, Pitch, Chords) │        │ (Frequency Data)
+│  - Step Scheduler (Lookahead Timer)    │        │
+└──────────────┬─────────────────────────┘        │
+│                                  │
+▼                                  │
+┌─────────────────────────────────────────────────┴───────────┐
+│                     Audio Pipeline Engine                   │
+│                                                             │
+│   Oscillators (Sine, Saw, Tri, Square) & White Noise        │
+│                         │                                   │
+│                         ▼                                   │
+│           Gain Envelopes (ADSR) & Biquad Filters            │
+│                         │                                   │
+│                         ├───────────────┐                   │
+│                         ▼               ▼                   │
+│                    [Dry Gain]      [Wet Delay]              │
+│                         │               │                   │
+│                         └───────┬───────┘                   │
+│                                 ▼                           │
+│                           Master Output                     │
+│                                 │                           │
+│                    ┌────────────┴────────────┐              │
+│                    ▼                         ▼              │
+│       AnalyserNode ──► Canvas        AudioDestinationNode   │
+└─────────────────────────────────────────────────────────────┘
 ---
 
 ## 🛠 Tech Stack
