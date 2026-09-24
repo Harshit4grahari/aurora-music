@@ -2,6 +2,8 @@
 
 Aurora is a zero-dependency, lightweight web audio player and live algorithmic music generator built for short-form content creators (Reels, TikTok, and YouTube Shorts)[cite: 1]. It synthesizes full ambient, lo-fi, synthwave, drill, phonk, and pop tracks directly inside your browser using the native Web Audio API—complete with offline WAV rendering, custom audio uploads, and a reactive audio visualizer[cite: 1].
 
+
+## ✨Live Demo ->  https://harshit4grahari.github.io/aurora-music/
 ---
 
 ## ✨ Features
