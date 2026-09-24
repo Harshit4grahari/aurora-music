@@ -72,5 +72,5 @@ Aurora is completely client-side and requires no setup or package installation[c
 
 1. Clone or download the repository:
    ```bash
-   git clone [https://github.com/your-username/aurora.git](https://github.com/your-username/aurora.git)
+   git clone (https://github.com/Harshit4grahari/aurora-music.git)
    cd aurora
